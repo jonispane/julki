@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang=fi>
+  <head>
+    <title>assigner CTA</title>
+    <meta charset="UTF-8">
+    <link  rel="stylesheet"  href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"    />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
+<body>
+<div id="app" style="margin: 24px;">
+<div >
+<div v-if="taskFo" >
+<input class="form-control" v-model="taskin" placeholder="title of new task">
+<button class="form-control btn btn-success" v-on:click="testTask('Testi taski')" style="max-width:380px;margin:8px;"> add</button>
+</div>
+<div v-else >
+<button class="form-control btn btn-success" v-on:click="taskForm()" style="max-width:380px;margin:8px;">+ new task</button>
+</div>
+<br><br>
+
+<div class="card" v-for="task in unassigned" style=";margin:10px;">
+<div class="card-header" >
+<span style="font-size:large;margin:6px;">{{task.name}}</span>
+</div>
+<div class="card-body" >
+<span style="font-size:small;">assign to:</span>
+<span  v-for="mem in memberassigments">
+<button class="btn btn-primary" style=";margin:10px;" v-on:click="assign(task._id,mem._id)"> {{mem.name}}</button>
+</span>
+</div>
+</div>
+</div>
+
+
+<br><hr><br>
+
+<div class="container" >
+<div class="row" >
+<div  style="max-width:260px;border:1px #222 solid;border-radius:15px;margin:8px;" class="coll-sm" v-for="mem in memberassigments">
+<span style="font-size:xx-large;margin:6px;">{{mem.name}}</span>
+<span class="badge bg-info" style="font-size:large;margin:6px;">{{mem.assigments.length}}</span>
+<div style="max-width:240px;" v-for="(task,index) in mem.assigments">
+<span style="margin:6px;">{{task.name}}</span>
+<span style="font-size:small;margin:6px;">{{index}}</span>
+</div>
+</div>
+</div>
+
+
+</div>
+Blokit by View
+</div>
+
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+var qs = window.location.search;
+const LAPI_URL = "http://192.168.1.3:8080/appcd/CTA/";
+const RAPI_URL = "http://173.249.18.85:8080/rbus/";
+ Vue = new Vue({
+      el: "#app",
+data: 
+{"unassigned": [], "memberassigments": [], "taskin": "", "taskFo": ""}  
+    ,
+
+  methods: {
+      testTask: function (name) {
+          var app = this;
+          var tn = app.taskin;
+          var qq =RAPI_URL+'team/ABC/unassigned'+qs+'&name='+tn+'&description=--';
+          axios
+            .post(qq)
+            .then(function (res) {
+             app.unassigned = res.data.unassigned;
+             app.memberassigments = res.data.memberassigments;
+             app.taskin = '';
+            })
+            .catch(function (e) {
+              console.log("Error" + e);
+            });
+        },
+      insertMember: function (name,email) {
+          var app = this;
+          var qq =RAPI_URL+'team/ABC/member/'+qs+'&name='+name+'&email'+email;
+          axios
+            .post(qq)
+            .then(function (res) {
+             app.unassigned = res.data.unassigned;
+             app.memberassigments = res.data.memberassigments;
+            })
+            .catch(function (e) {
+              console.log("Error" + e);
+            });
+        },
+      taskForm: function () {
+          var app = this;
+             app.taskFo = 'on';
+        },
+      assign: function (taskid,uid) {
+          var app = this;
+             app.taskFo = '';
+          var qq =RAPI_URL+'team/ABC/assign/'+taskid+'/'+uid+qs+'';
+          axios
+            .put(qq)
+            .then(function (res) {
+             app.unassigned = res.data.unassigned;
+             app.memberassigments = res.data.memberassigments;
+            })
+            .catch(function (e) {
+              console.log("Error" + e);
+            });
+        },
+  },
+
+      mounted: function () {
+          var app = this;
+          var qq =RAPI_URL+'team/ABC/unassigned'+qs;
+          axios
+            .get(qq)
+            .then(function (res) {
+             app.unassigned = res.data.unassigned;
+            })
+            .catch(function (e) {
+              console.log("Error" + e);
+            });
+          var qq2 =RAPI_URL+'team/ABC/memberassigments'+qs;
+          axios
+            .get(qq2)
+            .then(function (res) {
+             app.memberassigments = res.data.memberassigments;
+            })
+            .catch(function (e) {
+              console.log("Error" + e);
+            });
+        },
+    });
+</script>
+</body>
+</html>
