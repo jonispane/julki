@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>BE UI html only</title>
+    <link  rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css"    />
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"      />
+   
+
+  </head>
+
+  <body>
+    <div class="container" style="margin:12px;">
+      <h3 class="text-center"> UI by BE</h3>
+      menu etc
+      <a href="?home=sweet">HOME</a>
+    </div>
+
+    <div class="row" style="margin:12px;">
+
+      <div class="col-4" id="liveApp" >
+        <span style="margin:12px;" v-html="info.data.live">live flow</span>
+      </div>
+    
+    <div class="col-8" id="app">
+      <span v-html="info.data.html1"></span>
+    </div>
+
+    </div>
+
+</div>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+const queryString = window.location.search;
+
+const url = "http://192.168.1.3:8080/qk/sd"+queryString;
+const liveurl = "http://192.168.1.3:8080/livel/saas";
+
+
+new Vue({
+  el: '#app',
+  data () {
+    return {
+      info: null
+    }
+  },
+  mounted () {
+   // setInterval(() => {
+    axios
+      .get(url)
+      .then(response => (this.info = response))
+  //  }, 1000)
+  }
+})
+new Vue({
+  el: '#liveApp',
+  data () {
+    return {
+      info: null
+    }
+  },
+  mounted () {
+    axios
+      .get(liveurl)
+      .then(response => (this.info = response))
+    setInterval(() => {
+    axios
+      .get(liveurl)
+      .then(response => (this.info = response))
+   }, 5000)
+  }
+})
+
+
+
+    </script>
+  </body>
+</html>
